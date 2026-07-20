@@ -21,19 +21,36 @@ A production-tested framework for AI-assisted development. Rules, skills, hooks,
 
 ## Quick Start
 
+### Option A: Use this repo as your workspace (zero setup)
+
 ```bash
-# Clone
+git clone https://github.com/adriaanbalt/ai.rules.prompts.git
+cd ai.rules.prompts
+cursor .    # Open in Cursor — rules and skills are active immediately
+```
+
+The `.cursor/` directory has symlinks to all rules and skills. Nothing to copy.
+
+If you use MCP (e.g., Linear), copy the example and add your key:
+```bash
+cp .cursor/mcp.json.example .cursor/mcp.json
+# Edit .cursor/mcp.json with your API key (gitignored, won't be committed)
+```
+
+### Option B: Copy into an existing project
+
+```bash
 git clone https://github.com/adriaanbalt/ai.rules.prompts.git
 cd ai.rules.prompts
 
-# Copy universal rules into your project
+# Copy universal rules
 cp rules/0*.mdc your-project/.cursor/rules/
+
+# Copy skills
+cp -r skills/* your-project/.cursor/skills/
 
 # Copy AI trust boundary
 cp .cursorignore.template your-project/.cursorignore
-
-# Copy skills (on-demand workflows)
-cp -r skills/* your-project/.cursor/skills/
 
 # (Optional) Copy hooks
 cp hooks/hooks.json your-project/.cursor/hooks.json

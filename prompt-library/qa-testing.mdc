@@ -1,0 +1,73 @@
+---
+description: QA testing workflow prompts - reference when needed
+alwaysApply: false
+globs: []
+---
+
+# QA Testing Prompts
+
+Reference these prompts using: `@prompt-library/qa-testing prompt-name`
+
+## Start QA Session
+
+**Use when:** Beginning a new QA testing session for a build
+
+```
+I'm starting a QA session for [build/version]. Pull all tickets in "In Review" or "Ready for QA" status from my project management tool. Generate a regression checklist I can work through. For each ticket, include: ticket ID, title, what to test, and expected behavior. Format as a numbered checklist I can mark off.
+```
+
+## Format QA Report
+
+**Use when:** You have raw QA notes and need them formatted for sharing
+
+```
+Format my QA notes into a structured report. Group results by Pass/Partial/Fail. Include a summary count at the top. For failures, extract steps to reproduce and severity level. Output clean markdown I can share with the development team.
+```
+
+## Batch Update Tickets
+
+**Use when:** Done testing and ready to push results to project management
+
+```
+Based on my QA results, update all tested tickets: set passed tickets to Done, set failed/partial tickets to In Progress and reassign to the developer. Add a comment to each ticket with the test result, including failure details and reproduction steps for any that didn't pass.
+```
+
+## Screenshot Bug Report
+
+**Use when:** Describing a bug found during testing (with or without screenshot)
+
+```
+I found a bug during QA testing. Help me write a structured bug report with: summary, steps to reproduce, expected vs actual behavior, severity assessment, device/environment info, and any workarounds. Format it ready to paste into a ticket.
+```
+
+## Regression Summary
+
+**Use when:** QA session is complete and you need a stakeholder-ready summary
+
+```
+Summarize my QA regression results for stakeholders. Include: build version tested, total tickets tested, pass rate, critical failures that block release, and a recommendation on whether this build is ready to ship. Keep it concise — 5 sentences max for the executive summary, with details below.
+```
+
+## Duplicate Check
+
+**Use when:** Found a bug and want to check if it's already been reported
+
+```
+I think I found a bug: [describe bug]. Before I create a new ticket, search existing tickets for duplicates or related issues. Check for similar descriptions, affected features, or related error messages. Tell me if this is a known issue or if I should file a new ticket.
+```
+
+## Smoke Test Checklist
+
+**Use when:** Running a quick smoke test on a new build before full regression
+
+```
+Generate a smoke test checklist for a new build. Focus on critical path functionality: app launch, authentication, core feature happy paths, navigation, and data persistence. Keep it to 10-15 items max. I'll mark each as pass/fail and we'll decide if full regression is needed.
+```
+
+## QA Handoff Notes
+
+**Use when:** Transitioning QA responsibility or documenting test coverage
+
+```
+Help me write QA handoff notes. Summarize: what was tested (and how), what was NOT tested (and why), known issues carried forward, environment/device coverage, and any areas that need extra attention in the next cycle. Format for another QA tester to pick up seamlessly.
+```

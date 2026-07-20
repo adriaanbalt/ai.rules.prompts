@@ -1,0 +1,64 @@
+---
+description: Auto-formats raw QA test notes into structured, shareable reports. Detects QA-shaped input (ticket references + pass/fail results) and outputs grouped markdown.
+alwaysApply: false
+---
+
+# QA Report Formatting
+
+When input contains raw QA test results (ticket IDs, pass/fail/partial indicators, or test observations), automatically format into a structured report.
+
+## Detection Triggers
+
+Activate formatting when input contains:
+- Ticket identifiers (e.g., PROJ-123, #456, or similar patterns)
+- Pass/fail/partial language mixed with test descriptions
+- Build version references combined with test notes
+- Lists of features tested with outcomes
+
+## Output Format
+
+Structure all QA reports as:
+
+```markdown
+# QA Report — [Build/Version if mentioned]
+**Date:** [current date]
+**Tester:** [if mentioned]
+**Build:** [version/build number if mentioned]
+
+## Summary
+- Total tests: [count]
+- Passed: [count]
+- Partial: [count]
+- Failed: [count]
+
+## ✅ Passed
+| Ticket | Test Description | Notes |
+|--------|-----------------|-------|
+| [ID]   | [what was tested] | [any observations] |
+
+## ⚠️ Partial
+| Ticket | Test Description | What Worked | What Failed | Severity |
+|--------|-----------------|-------------|-------------|----------|
+| [ID]   | [what was tested] | [working parts] | [broken parts] | [High/Med/Low] |
+
+## ❌ Failed
+| Ticket | Test Description | Expected | Actual | Severity | Steps to Reproduce |
+|--------|-----------------|----------|--------|----------|-------------------|
+| [ID]   | [what was tested] | [expected behavior] | [actual behavior] | [High/Med/Low] | [numbered steps] |
+
+## Screenshots / Evidence
+[Reference any mentioned screenshots or recordings]
+
+## Recommendations
+[Prioritized list of items needing developer attention]
+```
+
+## Rules
+
+1. **Group by result** — Always separate Pass/Partial/Fail into distinct sections.
+2. **Preserve ticket IDs** — Keep original ticket identifiers exactly as written.
+3. **Infer severity** — If not explicitly stated, infer from context (crashes = High, cosmetic = Low, functional = Medium).
+4. **Add reproduction steps** — For failures, extract or prompt for steps to reproduce.
+5. **Be concise** — Notes should be scannable. One line per observation.
+6. **Include counts** — Always provide a summary with totals at the top.
+7. **Flag blockers** — If any failure prevents further testing, call it out prominently.

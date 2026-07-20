@@ -1,0 +1,166 @@
+---
+description: Regression test checklist workflow using project management MCP. Pulls tickets, generates checklists, tracks results, and batch-updates ticket status.
+alwaysApply: false
+globs: []
+---
+
+# QA Regression Checklist
+
+A structured workflow for regression testing against project management tickets. Designed for use with MCP-connected tools (e.g., Linear, Jira, GitHub Issues).
+
+## Workflow Overview
+
+1. **Pull tickets** — Fetch tickets in "In Review" or "Ready for QA" status
+2. **Generate checklist** — Create testable checklist items per ticket
+3. **Track results** — Record pass/fail/partial for each item
+4. **Update tickets** — Batch-update ticket status based on results
+
+## Step 1: Start QA Session
+
+When the user says "start QA", "begin regression", or "pull QA tickets":
+
+1. Query the project management MCP for tickets in testable states (e.g., "In Review", "Ready for QA", "QA")
+2. Filter to the relevant project/team if specified
+3. Present tickets as a numbered checklist:
+
+```markdown
+# Regression Checklist — [Date]
+**Project:** [project name]
+**Tickets found:** [count]
+
+| # | Ticket | Title | Priority | Assignee |
+|---|--------|-------|----------|----------|
+| 1 | [ID]   | [title] | [priority] | [dev name] |
+| 2 | [ID]   | [title] | [priority] | [dev name] |
+...
+
+## Test Instructions
+For each ticket, test the described functionality and report:
+- ✅ **Pass** — Works as expected
+- ⚠️ **Partial** — Partially works, issues noted
+- ❌ **Fail** — Does not work as described
+```
+
+## Step 2: Record Results
+
+As the user reports results for each ticket, maintain a running tally:
+
+```markdown
+## Results So Far
+| Ticket | Result | Notes |
+|--------|--------|-------|
+| [ID]   | ✅ Pass | [any notes] |
+| [ID]   | ❌ Fail | [failure description] |
+```
+
+Prompt for details on failures:
+- What was the expected behavior?
+- What actually happened?
+- Steps to reproduce
+- Screenshots referenced?
+
+## Step 3: Update Tickets
+
+When the user says "update tickets", "push results", or "sync to Linear":
+
+### For Passed Tickets:
+- Set status to **Done** (or equivalent completed state)
+- Add comment: "QA Passed — [date]. Tested on [build version if known]."
+
+### For Failed/Partial Tickets:
+- Set status to **In Progress** (returning to developer)
+- Reassign to the original developer
+- Add comment with structured failure report:
+
+```markdown
+## QA Result: [Fail/Partial]
+**Tested:** [date]
+**Build:** [version if known]
+
+### What was tested
+[Description of test performed]
+
+### Expected behavior
+[What should have happened]
+
+### Actual behavior
+[What actually happened]
+
+### Steps to reproduce
+1. [step]
+2. [step]
+3. [step]
+
+### Screenshots
+[References if any]
+
+### Severity
+[High/Medium/Low]
+```
+
+## MCP Configuration Examples
+
+### Linear MCP
+
+```json
+{
+  "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "@linear/mcp-server"],
+      "env": {
+        "LINEAR_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+**Useful Linear MCP queries:**
+- List tickets by state: Filter by `stateId` for "In Review" state
+- Update ticket status: Change `stateId` to target state
+- Add comments: Create comment on issue with QA results
+- Reassign: Update `assigneeId` field
+
+### GitHub Issues MCP
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-token"
+      }
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+### MCP Not Connected
+If the project management MCP is not available:
+1. Check `.cursor/mcp.json` exists in workspace root
+2. Verify API key is set in environment
+3. Restart Cursor after adding MCP configuration
+4. Test with a simple query: "list my tickets"
+
+### No Tickets Found
+- Verify the correct project/team filter
+- Check ticket states — different tools use different state names
+- Confirm API key has read access to the project
+
+### Update Failures
+- Verify API key has write permissions
+- Check that ticket IDs are valid and accessible
+- Some tools require specific role permissions for state transitions
+
+## Best Practices
+
+1. **One session per build** — Start a fresh conversation for each TestFlight/build you're testing
+2. **Test in ticket order** — Work through the checklist sequentially to avoid missing items
+3. **Note build version** — Always mention which build you're testing against
+4. **Screenshot failures** — Reference screenshots for any visual bugs
+5. **Batch updates at the end** — Collect all results before pushing to avoid partial updates

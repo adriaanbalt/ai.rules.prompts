@@ -1,0 +1,70 @@
+---
+description: Performance optimization and animation standards for React components.
+globs: "**/*.tsx,**/*.jsx,**/*.ts,**/*.css"
+alwaysApply: false
+---
+
+# React Performance & Animations
+
+## Performance Rules
+
+1. **Memoize expensive computations** (`useMemo`) when iterating >100 items or performing sort/group operations.
+2. **Stabilize callbacks** with `useCallback` when passed to memoized children. Never lie to dependency arrays.
+3. **Co-locate state** as close to its consumer as possible. Don't lift state higher than necessary.
+4. **Split contexts** by update frequency — never mix fast-changing and slow-changing values in one context.
+5. **Use refs** for values that change frequently but don't affect visual output (scroll position, timer IDs).
+6. **Virtualize lists** with >50 items using `@tanstack/react-virtual`.
+7. **Lazy-load heavy components** with `React.lazy` + `Suspense` with skeleton fallbacks.
+8. **Stable keys** — always use domain IDs, never array indices for dynamic lists.
+9. **Prevent layout thrashing** — batch DOM reads, then batch writes. Never interleave.
+
+## Animation Rules
+
+### Decision Framework
+
+| Need | Tool |
+|------|------|
+| Hover/focus/appear | CSS transitions |
+| Keyframe sequences | CSS `@keyframes` |
+| Enter/exit mount | `framer-motion` `AnimatePresence` |
+| Spring physics / gestures | `framer-motion` |
+| Scroll-driven | CSS `animation-timeline` or `useScroll` |
+| Per-frame values (no re-renders) | `useMotionValue` + `useTransform` |
+
+**Default to CSS. Use framer-motion only when CSS can't express the interaction.**
+
+### Critical Constraints
+
+- **Only animate `transform` and `opacity`** — these are GPU-composited. Never animate `width`, `height`, `top`, `left`, `margin`, or `padding` with JS.
+- **Use `will-change` sparingly** — only on elements about to animate, remove after.
+- **Define variant/transition objects outside components** — stable references prevent wasted renders.
+- **Always wrap conditionally rendered animated elements in `AnimatePresence`.**
+
+### Timing Guide
+
+| Context | Duration | Easing |
+|---------|----------|--------|
+| Micro-interactions (hover, focus) | 100–200ms | `ease-out` |
+| Enter transitions | 200–300ms | `ease-out` |
+| Exit transitions | 150–250ms | `ease-in` |
+| Layout shifts | 200–400ms | `ease-in-out` |
+
+Exits should be faster than entries.
+
+### Accessibility
+
+**Always respect `prefers-reduced-motion`:**
+
+```tsx
+const shouldReduceMotion = useReducedMotion();
+// Set duration to 0 or skip animation entirely when true
+```
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```

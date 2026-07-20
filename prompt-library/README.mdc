@@ -65,6 +65,16 @@ Reference prompts using the `@` syntax in your Cursor chat:
 ### Problem Analysis (`@prompt-library/problem-analysis`)
 - `alternative-perspective` - Take completely different point of view, rank by likelihood
 
+### QA Testing (`@prompt-library/qa-testing`)
+- `start-qa-session` - Begin structured QA session for a build
+- `format-qa-report` - Format raw notes into structured report
+- `batch-update-tickets` - Update tickets with QA results via MCP
+- `screenshot-bug-report` - Generate bug report from screenshot/description
+- `regression-summary` - Summarize results for stakeholders
+- `duplicate-check` - Check if bug already reported
+- `smoke-test-checklist` - Quick smoke test for new builds
+- `qa-handoff-notes` - Document test coverage for handoff
+
 ## Usage Examples
 
 ### Example 1: Debug Analysis

@@ -81,6 +81,19 @@ Or reference the file and mention the prompt:
 @prompt-library/problem-analysis alternative-perspective
 ```
 
+### QA Testing Prompts
+
+```
+@prompt-library/qa-testing start-qa-session
+@prompt-library/qa-testing format-qa-report
+@prompt-library/qa-testing batch-update-tickets
+@prompt-library/qa-testing screenshot-bug-report
+@prompt-library/qa-testing regression-summary
+@prompt-library/qa-testing duplicate-check
+@prompt-library/qa-testing smoke-test-checklist
+@prompt-library/qa-testing qa-handoff-notes
+```
+
 ## Usage Examples
 
 ### Example 1: Debug Analysis

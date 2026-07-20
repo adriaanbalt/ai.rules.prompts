@@ -1,216 +1,54 @@
 ---
-description: Testing standards and patterns. Covers test structure, mocking, fixtures, and test organization.
+description: Testing standards. Structure, mocking, patterns.
 globs: "tests/**/*.{ts,tsx},**/*.test.{ts,tsx},**/*.spec.{ts,tsx}"
 alwaysApply: false
 ---
 
 # Testing Standards
 
-## Test Structure
+## File Naming
 
-### 1. Test File Naming
-
-**Use `.test.ts` or `.spec.ts` suffix**:
-```
-✅ Good:
-  api.test.ts
-  hooks.test.ts
-  components.spec.tsx
-
-❌ Bad:
-  api.testing.ts
-  test-api.ts
-```
-
-### 2. Test Organization
-
-**Group related tests**:
-```typescript
-describe('useAnalytics', () => {
-  describe('data fetching', () => {
-    it('should fetch analytics data', () => { });
-    it('should handle errors', () => { });
-  });
-  
-  describe('loading states', () => {
-    it('should set loading to true initially', () => { });
-  });
-});
-```
+Use `.test.ts` or `.spec.ts` suffix. Group related tests with nested `describe` blocks.
 
 ## Test Patterns
 
-### 1. API Route Tests
+### API Routes
+- Mock authentication, test error cases, verify response formats and status codes.
 
-**Test API routes with proper authentication**:
-```typescript
-import { createMocks } from 'node-mocks-http';
+### Hooks
+- Use `renderHook` + `waitFor` from `@testing-library/react`.
 
-describe('POST /api/buckets', () => {
-  it('should create a bucket', async () => {
-    const { req, res } = createMocks({
-      method: 'POST',
-      body: { name: 'Test Bucket' }
-    });
-    
-    // Mock authentication
-    // Test handler
-    // Assert response
-  });
-});
-```
-
-### 2. Hook Tests
-
-**Test hooks with React Testing Library**:
-```typescript
-import { renderHook, waitFor } from '@testing-library/react';
-import { useAnalytics } from '@/lib/hooks/useAnalytics';
-
-describe('useAnalytics', () => {
-  it('should fetch analytics data', async () => {
-    const { result } = renderHook(() => useAnalytics({
-      timeRange: '30d',
-      bucketId: 'test-id'
-    }));
-    
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-    
-    expect(result.current.data).toBeDefined();
-  });
-});
-```
-
-### 3. Component Tests
-
-**Test components with React Testing Library**:
-```typescript
-import { render, screen } from '@testing-library/react';
-import Dashboard from './Dashboard';
-
-describe('Dashboard', () => {
-  it('should render dashboard', () => {
-    render(<Dashboard />);
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-  });
-});
-```
+### Components
+- Use `render` + `screen` from `@testing-library/react`. Test behavior, not implementation.
 
 ## Mocking
 
-### 1. Mock External Services
-
-**Mock Supabase client**:
+Mock Supabase client:
 ```typescript
 jest.mock('@/lib/database/client', () => ({
   createClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockResolvedValue({ data: [], error: null })
-    }))
+    from: jest.fn(() => ({ select: jest.fn().mockReturnThis(), eq: jest.fn().mockResolvedValue({ data: [], error: null }) }))
   }))
 }));
 ```
 
-### 2. Use Test Fixtures
-
-**Use fixtures from `tests/fixtures/`**:
+Use fixtures from `tests/fixtures/`:
 ```typescript
 import { mockBucket, mockUser } from '@/tests/fixtures';
-
-const bucket = mockBucket({ name: 'Test Bucket' });
 ```
 
-## Test Data
+## Rules
 
-### 1. Clean Up Test Data
+- Clean up test data in `afterEach`
+- Never use real API keys in tests
+- Test critical business logic and error paths
+- Use descriptive test names that describe behavior
 
-**Clean up after tests**:
-```typescript
-afterEach(async () => {
-  await cleanupTestData();
-});
-```
+## Worker Tests (Python)
 
-## DO's and DON'Ts
-
-### DO:
-- ✅ Test critical business logic
-- ✅ Use descriptive test names
-- ✅ Mock external services
-- ✅ Use test fixtures
-- ✅ Clean up test data
-- ✅ Group related tests
-- ✅ Test error cases
-
-### DON'T:
-- ❌ Test implementation details
-- ❌ Skip error handling tests
-- ❌ Leave test data in database
-- ❌ Use real API keys in tests
-- ❌ Skip cleanup
-
-## Worker Testing (Python Services)
-
-### Background Worker Tests
-
-**Location**: `services/background-worker/tests/`
-
-**Run tests**:
-```bash
-cd services/background-worker
-make test
-# or
-./tests/run_all_tests.sh
-```
-
-**Test coverage**:
-- Chunk storage idempotency
-- Status update verification
-- Job deduplication
-- Document-level deduplication
-- Integration tests
-- Metrics collection
-
-**CI Integration**: Tests run automatically in GitHub Actions when `services/background-worker/**` files change
-
-### Text Extractor Verification
-
-**Location**: `services/text-extractor/`
-
-**Verification**:
-```bash
-cd services/text-extractor
-python3 -c "import main; print('✅ OK')"
-python3 -c "from shared.retry import retry_with_backoff; print('✅ Shared modules OK')"
-```
-
-**CI Integration**: Verification runs automatically in GitHub Actions when `services/text-extractor/**` files change
-
-### Worker Test Requirements
-
-**Environment Variables** (required for tests):
-- `SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `OPENAI_API_KEY` (for background worker tests)
-
-**Test Structure**:
-- Tests use `pytest` framework
-- Test files: `test_*.py`
-- Shared fixtures: `conftest.py`
-- Configuration: `pytest.ini`
-
-**CI/CD Integration**:
-- Tests run automatically in GitHub Actions when worker files change
-- **Coverage Reporting**: Coverage reports (HTML, XML) generated and uploaded as artifacts
-- **Security Scanning**: `safety` scans dependencies for vulnerabilities (non-blocking)
-- **Code Quality**: `flake8` linting and `black` formatting checks (non-blocking)
-- **Secrets Validation**: Required secrets validated before tests run
-- **Docker Build Verification**: Docker images built and verified in CI
-
-**Coverage Requirements**:
-- Coverage reports available in CI artifacts
-- Aim for >80% coverage (as per IMPROVEMENTS.md)
-- Coverage includes HTML reports for detailed analysis
+- Location: `services/background-worker/tests/`
+- Run: `cd services/background-worker && make test`
+- Framework: pytest with `conftest.py` for shared fixtures
+- Required env: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`
+- CI: Runs automatically in GitHub Actions on `services/background-worker/**` changes
+- Coverage: reports generated as HTML/XML artifacts, target >80%

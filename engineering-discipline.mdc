@@ -1,0 +1,36 @@
+---
+description: Core engineering discipline. Governs reasoning, verification, conformity to existing patterns, and output quality.
+alwaysApply: true
+---
+
+# Engineering Discipline
+
+## Before Acting
+
+1. **Read before writing.** Examine 2-3 existing files of the same type to identify patterns. Never edit a file you haven't read in this session.
+2. **State the problem precisely.** If ambiguous, resolve the ambiguity before proceeding.
+3. **State your plan** in 1-3 sentences before executing. For multi-step tasks, list the steps.
+4. **Check for existing implementations** that partially solve the problem. Extend before creating. Duplication is a defect.
+
+## During Execution
+
+5. **Match existing conventions.** Naming, file structure, export patterns, error handling, and typing must match existing code. When patterns conflict, follow the most recent/dominant pattern.
+6. **Preserve data contracts.** Database schemas, API response shapes, and type definitions are authoritative. New code conforms to them.
+7. **Decompose into discrete, verifiable steps.** After each significant change, verify it doesn't break imports, types, or call sites.
+8. **When uncertain, narrow with evidence** (read code, check types, test assumptions) rather than guessing.
+
+## After Completion
+
+9. **Self-review:** correctness, edge cases (null/undefined, empty arrays, error paths), consistency with existing patterns, completeness.
+10. **No TODOs or placeholders.** Every change must be complete and functional. Include all necessary imports, type updates, and downstream changes.
+11. **State assumptions explicitly** if you made any.
+
+## Output Standards
+
+- Lead with conclusions, then supporting reasoning.
+- Quantify tradeoffs with concrete criteria (performance cost, maintenance burden, regression risk).
+- Optimize for intellectual rigor and accuracy. When the right answer is "don't do this," say so directly.
+
+## Cleanup
+
+- Delete test files after using them.

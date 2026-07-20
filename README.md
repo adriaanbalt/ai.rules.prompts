@@ -2,21 +2,21 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/adriaanbalt/ai.rules.prompts?style=social)](https://github.com/adriaanbalt/ai.rules.prompts)
 
-A lean, production-tested framework for AI-assisted development. Rules that make Cursor (and any AI coding tool) behave like a senior engineer who knows your codebase.
+A production-tested framework for AI-assisted development. Rules, skills, hooks, and governance that make Cursor behave like a senior engineer who knows your codebase.
 
-**Stack-agnostic.** The methodology works for Next.js, Django, Rails, Go, Rust — anything. Stack-specific rules are included as examples you adapt.
+**Stack-agnostic.** The methodology works for Next.js, Django, Rails, Go, Rust — anything. Stack-specific rules are included as a reference implementation you adapt.
 
 ---
 
-## Why This Exists
+## What's Included
 
-AI coding assistants are powerful but undirected. Without guardrails, they:
-- Invent patterns instead of following yours
-- Generate verbose, tutorial-style code instead of matching conventions
-- Skip validation, producing code that doesn't compile
-- Ignore your team's established error handling, testing, and naming
-
-This repo provides the **rules, hooks, governance, and rollout playbook** to fix that.
+| Layer | Purpose | Fires when |
+|-------|---------|------------|
+| **Rules** | Constraints the AI follows every session | Automatically (always-on or glob-triggered) |
+| **Skills** | Multi-step workflow playbooks | On demand ("Run a QA session") |
+| **Hooks** | Post-event behavioral nudges | After file saves |
+| **Docs** | Rollout playbook, metrics, governance | Reference for team adoption |
+| **Prompt Library** | Reusable prompt templates | User references them explicitly |
 
 ---
 
@@ -25,20 +25,24 @@ This repo provides the **rules, hooks, governance, and rollout playbook** to fix
 ```bash
 # Clone
 git clone https://github.com/adriaanbalt/ai.rules.prompts.git
+cd ai.rules.prompts
 
-# Copy universal rules to your project
-cp ai.rules.prompts/rules/0*.mdc your-project/.cursor/rules/
+# Copy universal rules into your project
+cp rules/0*.mdc your-project/.cursor/rules/
 
-# Copy .cursorignore template
-cp ai.rules.prompts/.cursorignore.template your-project/.cursorignore
+# Copy AI trust boundary
+cp .cursorignore.template your-project/.cursorignore
+
+# Copy skills (on-demand workflows)
+cp -r skills/* your-project/.cursor/skills/
 
 # (Optional) Copy hooks
-cp ai.rules.prompts/hooks/hooks.json your-project/.cursor/hooks.json
+cp hooks/hooks.json your-project/.cursor/hooks.json
 ```
 
-Or symlink for auto-updates:
+Or use the setup script:
 ```bash
-ln -s /path/to/ai.rules.prompts/rules/0*.mdc your-project/.cursor/rules/
+bash setup-cursor-rules.sh   # Run from your project root
 ```
 
 ---
@@ -47,53 +51,66 @@ ln -s /path/to/ai.rules.prompts/rules/0*.mdc your-project/.cursor/rules/
 
 ```
 ai.rules.prompts/
-├── rules/                          # ← Copy these into .cursor/rules/
-│   ├── 00-engineering-discipline   # Core reasoning & quality (always applied)
+│
+├── rules/                          # ← Copy into .cursor/rules/
+│   │
+│   │ # Universal (any project, any stack)
+│   ├── 00-engineering-discipline   # Core reasoning & verification
 │   ├── 01-surgical-fixes           # Debugging methodology
 │   ├── 02-testing                  # Test patterns & coverage
 │   ├── 03-typescript-types         # Type safety constraints
-│   ├── 04-react-performance        # React/animation best practices
+│   ├── 04-react-performance        # React/animation patterns
 │   ├── 05-markdown-creation        # Documentation standards
 │   ├── 06-qa-report                # QA report formatting
 │   ├── 07-qa-regression            # Regression testing checklist
 │   ├── 08-onboarding-scaffold      # Guided first-contribution workflow
-│   └── nextjs-supabase/            # ← Stack example (adapt for your stack)
-│       ├── 10-api-routes
-│       ├── 11-database-queries
-│       ├── 12-error-handling
-│       ├── 13-security
-│       ├── 14-supabase-migrations
-│       ├── 15-hooks-react
-│       ├── 16-design-system-tokens
-│       ├── 17-https-oauth
-│       ├── 18-environment-variables
-│       ├── 19-logging-monitoring
-│       ├── 20-multi-tenancy
-│       ├── 21-stripe-connect
-│       ├── 22-aws-lambda-sam
-│       ├── 23-email-pipeline
-│       ├── 24-rag-ai-pipeline
-│       └── 25-provider-abstraction
-├── skills/                         # On-demand multi-step workflows
+│   │
+│   │ # Stack example (adapt for your stack)
+│   └── nextjs-supabase/
+│       ├── 10-api-routes           # Route handler patterns
+│       ├── 11-database-queries     # Supabase client usage
+│       ├── 12-error-handling       # Domain errors & logging
+│       ├── 13-security             # Auth, validation, secrets
+│       ├── 14-supabase-migrations  # Migration workflow
+│       ├── 15-hooks-react          # Custom hook patterns
+│       ├── 16-design-system-tokens # CSS variables & theming
+│       ├── 17-https-oauth          # Local HTTPS & OAuth config
+│       ├── 18-environment-variables# Env var naming & validation
+│       ├── 19-logging-monitoring   # Structured logging
+│       ├── 20-multi-tenancy        # Tenant isolation (app_id)
+│       ├── 21-stripe-connect       # Payments & webhooks
+│       ├── 22-aws-lambda-sam       # Serverless handlers
+│       ├── 23-email-pipeline       # Inbound/outbound email
+│       ├── 24-rag-ai-pipeline      # Embeddings & hybrid search
+│       └── 25-provider-abstraction # Swappable service providers
+│
+├── skills/                         # ← Copy into .cursor/skills/
 │   ├── qa-session/                 # Full QA testing workflow
-│   ├── rule-authoring/             # How to write new rules
+│   ├── rule-authoring/             # How to write effective rules
 │   ├── feature-scaffold/           # Phased feature implementation
 │   └── deploy-checklist/           # Multi-service deployment
-├── hooks/                          # Behavioral nudges (post-save reminders)
-│   ├── hooks.json                  # Hook definitions
-│   └── README.md                   # How hooks work
-├── docs/                           # Governance & operations
-│   ├── ROLLOUT-PLAYBOOK.md         # 4–6 week team adoption plan
-│   ├── PLATFORM-RUNBOOK.md         # Maintaining rules over time
-│   ├── SUCCESS-METRICS.md          # How to measure impact
+│
+├── hooks/                          # ← Copy hooks.json into .cursor/
+│   ├── hooks.json                  # Post-save quality nudges
+│   └── README.md                   # Hook philosophy & customization
+│
+├── docs/                           # Team adoption & governance
+│   ├── ROLLOUT-PLAYBOOK.md         # 4–6 week adoption plan
+│   ├── PLATFORM-RUNBOOK.md         # Maintaining rules long-term
+│   ├── SUCCESS-METRICS.md          # Measuring impact
 │   └── GOVERNANCE.md               # Security & trust boundaries
+│
 ├── prompt-library/                 # Reusable prompt templates
-│   ├── qa-testing.mdc
-│   ├── problem-analysis.mdc
-│   ├── refactoring.mdc
-│   └── ...
-├── .cursorignore.template          # AI trust boundary (copy to your project)
-└── README.md
+│   ├── qa-testing.mdc              # QA test generation prompts
+│   ├── development.mdc             # Debugging & coding prompts
+│   ├── refactoring.mdc             # Code improvement prompts
+│   ├── communication.mdc           # Explanation & documentation
+│   ├── problem-analysis.mdc        # Root cause analysis
+│   ├── strategic-analysis.mdc      # Business/strategy prompts
+│   └── document-parsing.mdc        # Text processing prompts
+│
+├── .cursorignore.template          # AI trust boundary template
+└── setup-cursor-rules.sh           # One-command install script
 ```
 
 ---
@@ -103,26 +120,28 @@ ai.rules.prompts/
 ### Four Layers of Enforcement
 
 ```
-Rules (AI reads these every session)
-  → "Always match existing naming conventions"
-  → "Never leave TODOs or placeholders"
-
-Skills (On-demand multi-step workflows)
-  → "Run a full QA session from scope to report"
-  → "Scaffold a feature with phased checkpoints"
-
-Hooks (Fire on specific events)
-  → "Did you check types after saving this .ts file?"
-  → "Does this test cover error cases?"
-
-CI (Machine-enforced, blocks merge)
-  → Lint, type-check, test suite
-  → Rules DON'T duplicate CI — they complement it
+┌─────────────────────────────────────────────────────┐
+│  Rules (always-on)                                   │
+│  "Match existing naming conventions"                 │
+│  "Never leave TODOs or placeholders"                 │
+├─────────────────────────────────────────────────────┤
+│  Skills (on-demand)                                  │
+│  "Run a full QA session from scope to report"        │
+│  "Scaffold a feature with phased checkpoints"        │
+├─────────────────────────────────────────────────────┤
+│  Hooks (post-event)                                  │
+│  "Did you check types after saving this .ts file?"   │
+│  "Does this test cover error cases?"                 │
+├─────────────────────────────────────────────────────┤
+│  CI (blocks merge)                                   │
+│  Lint, type-check, test suite                        │
+│  Rules complement CI — they don't duplicate it       │
+└─────────────────────────────────────────────────────┘
 ```
 
 ### Rule Format
 
-Every rule is a `.mdc` file with YAML frontmatter:
+Every `.mdc` rule file has YAML frontmatter + markdown body:
 
 ```markdown
 ---
@@ -133,51 +152,54 @@ alwaysApply: false    # true = active on every prompt (use sparingly)
 
 # Rule Title
 
-Constraints and patterns go here. Keep it under 100 lines.
+Constraints go here. Under 100 lines.
 Include WHY — the incident or pattern that motivated this rule.
 ```
 
 ### Numbering Convention
 
-| Range | Scope | Examples |
-|-------|-------|---------|
-| 00–09 | Universal (any project) | Engineering discipline, testing, QA |
-| 10–19 | Stack-specific | API routes, migrations, auth |
-| 20–29 | Team/role-specific | QA workflows, DevOps patterns |
+| Range | Scope | Who writes them |
+|-------|-------|-----------------|
+| 00–09 | Universal (any project) | Framework maintainer |
+| 10–19 | Stack-specific (framework patterns) | Stack expert |
+| 20–29 | Domain-specific (payments, AI, email) | Domain expert |
 
 ---
 
-## Skills (On-Demand Workflows)
+## Skills
 
-Skills are multi-step playbooks the agent follows when invoked. Copy to `.cursor/skills/` in your project:
+Skills are multi-step workflow playbooks. Install:
 
 ```bash
-cp -r ai.rules.prompts/skills/* your-project/.cursor/skills/
+cp -r skills/* your-project/.cursor/skills/
 ```
 
-| Skill | What it does | Invoke with |
-|-------|-------------|-------------|
-| `qa-session` | Full QA workflow: scope → test → report → tickets | "Run a QA session on this PR" |
-| `rule-authoring` | Write new rules following the methodology | "Create a rule for our API patterns" |
-| `feature-scaffold` | Phased implementation with checkpoints | "Scaffold the new payments feature" |
-| `deploy-checklist` | Multi-service deploy coordination | "Deploy this to production" |
+| Skill | What it does | Example invocation |
+|-------|-------------|-------------------|
+| **qa-session** | Scope → execute tests → report → update tickets | "Run a QA session on this PR" |
+| **feature-scaffold** | Phased build with checkpoints at each layer | "Scaffold the new billing feature" |
+| **deploy-checklist** | Multi-service deploy with rollback plan | "Deploy this to production" |
+| **rule-authoring** | Write rules following the methodology | "Create a rule for our API patterns" |
 
-**Rules vs Skills:**
-- Rules fire automatically (always-on or glob-triggered)
-- Skills fire on demand (user invokes explicitly)
-- Rules = constraints. Skills = workflows.
+**When to use skills vs rules:**
+- Rules = "always do this" (constraints, automatic)
+- Skills = "walk me through this" (workflows, on-demand)
 
 ---
 
 ## For QA Engineers
 
-Rules `06-qa-report` and `07-qa-regression` are designed for QA workflows:
+This repo is built for QA workflows:
 
-- **06-qa-report**: Standardized report format so AI generates consistent, actionable QA reports
-- **07-qa-regression**: Regression checklist ensuring no feature area is missed during testing
-- **prompt-library/qa-testing.mdc**: Ready-made prompts for test scenario generation
+| Resource | Purpose |
+|----------|---------|
+| `rules/06-qa-report` | Standardized report format the AI generates consistently |
+| `rules/07-qa-regression` | Regression checklist covering all feature areas |
+| `skills/qa-session` | Full workflow: scope → test → report → ticket updates |
+| `prompt-library/qa-testing.mdc` | Ready-made prompts for test scenario generation |
+| `rules/08-onboarding-scaffold` | Guided first contribution with validation checkpoints |
 
-The onboarding scaffold (`08`) guides QA engineers through their first contribution with checkpoints.
+Start with: copy the universal rules + the `qa-session` skill into your project.
 
 ---
 
@@ -185,12 +207,12 @@ The onboarding scaffold (`08`) guides QA engineers through their first contribut
 
 The `rules/nextjs-supabase/` directory is a **reference implementation**. To create rules for your stack:
 
-1. Copy the structure to `rules/your-stack/`
+1. Create `rules/your-stack/`
 2. Replace patterns with your framework's conventions
-3. Keep the same constraints-not-tutorials philosophy
-4. Number in the 10–19 range
+3. Keep the constraints-not-tutorials philosophy
+4. Number 10–19 for stack patterns, 20–29 for domain patterns
 
-Example for Django:
+**Example — Django:**
 ```
 rules/django/
 ├── 10-views.mdc           # View patterns, DRF serializers
@@ -200,16 +222,37 @@ rules/django/
 └── 14-celery.mdc          # Task queue patterns
 ```
 
+**Example — Go:**
+```
+rules/go/
+├── 10-handlers.mdc        # HTTP handler patterns
+├── 11-repository.mdc      # Data access layer
+├── 12-errors.mdc          # Error wrapping conventions
+├── 13-testing.mdc         # Table-driven tests
+└── 14-concurrency.mdc     # Goroutine/channel patterns
+```
+
 ---
 
 ## Design Principles
 
 1. **Constraints, not tutorials.** Rules tell the AI what NOT to do. It already knows how to code.
-2. **Under 100 lines.** If a rule is longer, it's a tutorial. Split or trim it.
-3. **Include WHY.** "Don't use `any`" is weak. "Don't use `any` — it caused 3 production type errors in June" is strong.
-4. **Match, don't invent.** Rules encode YOUR existing patterns, not ideal patterns from docs.
+2. **Under 100 lines.** Longer = tutorial. Split or trim.
+3. **Include WHY.** "Don't use `any`" is weak. "Don't use `any` — it caused 3 prod type errors in June" is strong.
+4. **Match, don't invent.** Encode YOUR patterns, not ideal patterns from documentation.
 5. **Fail open.** Hooks remind; only CI blocks. A broken rule should never prevent work.
 6. **Lean > comprehensive.** 10 sharp rules beat 50 verbose ones. Every token costs context.
+
+---
+
+## Team Adoption
+
+See `docs/` for the full operational framework:
+
+- **[ROLLOUT-PLAYBOOK.md](docs/ROLLOUT-PLAYBOOK.md)** — 4–6 week phased adoption plan (lighthouse → enable → mature)
+- **[PLATFORM-RUNBOOK.md](docs/PLATFORM-RUNBOOK.md)** — Adding, modifying, and removing rules over time
+- **[SUCCESS-METRICS.md](docs/SUCCESS-METRICS.md)** — Measuring impact (north star: time to first merged PR)
+- **[GOVERNANCE.md](docs/GOVERNANCE.md)** — Security, privacy, MCP access control, agent guardrails
 
 ---
 
@@ -219,7 +262,10 @@ rules/django/
 2. Add/modify rules following the numbering convention
 3. Keep rules under 100 lines
 4. Include a WHY annotation for any new constraint
-5. Test the rule in a real Cursor session before submitting
+5. Test in a real Cursor session before submitting
+6. No PII, secrets, or internal project names
+
+Use the `rule-authoring` skill for guided rule creation.
 
 ---
 

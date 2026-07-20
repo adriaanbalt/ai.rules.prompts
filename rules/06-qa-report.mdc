@@ -1,64 +1,142 @@
 ---
-description: Auto-formats raw QA test notes into structured, shareable reports. Detects QA-shaped input (ticket references + pass/fail results) and outputs grouped markdown.
-alwaysApply: false
+description: QA ticket operations via MCP. Creates, updates, and formats tickets with structured templates. Drives Linear/Jira/GitHub Issues directly.
+alwaysApply: true
 ---
 
-# QA Report Formatting
+# QA Ticket Operations
 
-When input contains raw QA test results (ticket IDs, pass/fail/partial indicators, or test observations), automatically format into a structured report.
+When the user reports QA results or describes bugs, **act on them via MCP** — don't just format text. Create tickets, update statuses, and add comments directly in the project management tool.
 
-## Detection Triggers
+## Ticket Creation Template
 
-Activate formatting when input contains:
-- Ticket identifiers (e.g., PROJ-123, #456, or similar patterns)
-- Pass/fail/partial language mixed with test descriptions
-- Build version references combined with test notes
-- Lists of features tested with outcomes
-
-## Output Format
-
-Structure all QA reports as:
+When the user says "create a ticket for: [description]" or describes a bug, create a ticket using this structure:
 
 ```markdown
-# QA Report — [Build/Version if mentioned]
-**Date:** [current date]
-**Tester:** [if mentioned]
-**Build:** [version/build number if mentioned]
-
 ## Summary
-- Total tests: [count]
-- Passed: [count]
-- Partial: [count]
-- Failed: [count]
 
-## ✅ Passed
-| Ticket | Test Description | Notes |
-|--------|-----------------|-------|
-| [ID]   | [what was tested] | [any observations] |
+[1–2 sentence description of what's wrong or what needs to happen]
 
-## ⚠️ Partial
-| Ticket | Test Description | What Worked | What Failed | Severity |
-|--------|-----------------|-------------|-------------|----------|
-| [ID]   | [what was tested] | [working parts] | [broken parts] | [High/Med/Low] |
+## Steps to Reproduce
 
-## ❌ Failed
-| Ticket | Test Description | Expected | Actual | Severity | Steps to Reproduce |
-|--------|-----------------|----------|--------|----------|-------------------|
-| [ID]   | [what was tested] | [expected behavior] | [actual behavior] | [High/Med/Low] | [numbered steps] |
+1. [Specific action]
+2. [Specific action]
+3. [Observe: what happens]
 
-## Screenshots / Evidence
-[Reference any mentioned screenshots or recordings]
+## Expected Behavior
 
-## Recommendations
-[Prioritized list of items needing developer attention]
+[What should happen]
+
+## Actual Behavior
+
+[What happens instead]
+
+## Environment
+
+| Field | Value |
+|-------|-------|
+| Platform | [Web / iOS / Android] |
+| Building/Account | [Which workspace/tenant] |
+| User/Sender | [Who triggered the issue] |
+| Feature area | [Email, invoices, payments, etc.] |
+
+## Evidence
+
+[Screenshots, error messages, DB values, or "none available"]
+
+## Acceptance Criteria
+
+- [ ] [Specific, testable condition that proves the fix works]
+- [ ] [Second condition if applicable]
+- [ ] No regressions in [related feature area]
+
+## Estimate
+
+[S / M / L — or hours if known]
+
+## Dependencies
+
+[Blocking tickets, required deploys, or "none"]
+
+## Security / Platform Considerations
+
+[Any credentials, keys, environment-specific details, or "none"]
+```
+
+## Ticket Update Actions
+
+When the user reports results on existing tickets:
+
+### Pass → Update via MCP:
+- Status: **Done**
+- Comment: "QA — Pass ✅ [date]. [One-line summary of what was tested]."
+
+### Fail → Update via MCP:
+- Status: **In Progress**
+- Reassign to original developer
+- Comment using this format:
+
+```markdown
+## QA — Fail ❌
+
+**Tested:** [date]
+**Build/Environment:** [if known]
+
+### What was tested
+[Description]
+
+### Expected
+[What should happen]
+
+### Actual
+[What happened instead]
+
+### Steps to reproduce
+1. [step]
+2. [step]
+
+### Severity
+[Critical / High / Medium / Low]
+
+### Evidence
+[Screenshots, DB values, or description]
+```
+
+### Partial → Update via MCP:
+- Status: **In Progress**
+- Reassign to original developer
+- Comment: Same format as Fail, but with a "What worked" section added before "What failed"
+
+## Creating Supporting Tickets
+
+When filing a bug or feature ticket, also consider creating related tickets for:
+- **Testing** — specific QA plan for verifying the fix
+- **Monitoring** — alerts or logging needed to detect recurrence
+- **Documentation** — if the fix changes user-facing behavior
+
+Link them as dependencies when relevant.
+
+## QA Session Summary
+
+After a batch of updates, generate a summary for reference:
+
+```markdown
+# QA Session — [Date]
+
+| Ticket | Result | Action Taken |
+|--------|--------|--------------|
+| [ID]   | ✅ Pass | Closed |
+| [ID]   | ❌ Fail | Reassigned to [dev], comment added |
+| [ID]   | ⚠️ Partial | Reassigned to [dev], comment added |
+
+**New tickets created:** [list any new bug tickets filed]
 ```
 
 ## Rules
 
-1. **Group by result** — Always separate Pass/Partial/Fail into distinct sections.
-2. **Preserve ticket IDs** — Keep original ticket identifiers exactly as written.
-3. **Infer severity** — If not explicitly stated, infer from context (crashes = High, cosmetic = Low, functional = Medium).
-4. **Add reproduction steps** — For failures, extract or prompt for steps to reproduce.
-5. **Be concise** — Notes should be scannable. One line per observation.
-6. **Include counts** — Always provide a summary with totals at the top.
-7. **Flag blockers** — If any failure prevents further testing, call it out prominently.
+1. **Always use MCP** — Create and update tickets directly. Never just format text for copy-paste.
+2. **Infer what you can** — If the user says "fail — no email reply", infer the expected behavior (should have received a reply) without asking.
+3. **Ask only when critical info is missing** — Don't block on screenshots or build numbers. File the ticket, note what's missing.
+4. **Link related tickets** — If the user mentions a parent ticket or blocker, link it.
+5. **Default priority from severity** — Critical/High bugs → Urgent/High priority. Medium → Normal. Low/cosmetic → Low.
+6. **Assign new bugs to the lead developer** unless the user specifies otherwise.
+7. **Include environment details** — Building name, sender email, project, etc. These are essential for reproducing tenant-scoped issues.

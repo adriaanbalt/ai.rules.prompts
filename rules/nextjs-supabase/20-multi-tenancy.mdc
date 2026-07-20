@@ -1,0 +1,51 @@
+---
+description: Multi-tenancy isolation patterns. Tenant key is app_id — every query must be scoped.
+globs: "app/api/**/*.ts,lib/**/*.ts"
+alwaysApply: false
+---
+
+# Multi-Tenancy
+
+Tenant key: `app_id` (UUID → `apps.id`). Membership: `app_members`.
+
+## Required Pattern (every tenant-scoped route)
+
+```ts
+await requireAuthForAPI()
+const appId = /* resolve from context/body/query */
+await requireAppMembershipForAPI(appId)  // or requireAppAdminForAPI
+// Now scope ALL queries:
+.eq('app_id', appId)
+```
+
+## Defense in Depth
+
+Both layers are mandatory:
+- **RLS** — database contract. Policies use `auth.uid()` + membership helpers.
+- **API membership checks** — application contract. Don't rely on RLS alone.
+
+If RLS catches what the API missed, that's a bug in the API — not proof RLS is sufficient.
+
+## Common Violations
+
+- Fetching by record ID without `.eq('app_id', appId)` — allows cross-tenant reads if someone guesses a UUID.
+- Using admin client without tenant scoping — bypasses RLS entirely; you MUST filter.
+- Resolving `app_id` from URL without verifying membership — attacker can substitute any UUID.
+
+## New Tables
+
+Every tenant-scoped table must:
+1. Have `app_id` column (FK to `apps.id`)
+2. Have RLS enabled in the same migration
+3. Have policies using `auth.uid()` + membership
+
+## Admin Client Usage
+
+`getSupabaseAdmin()` bypasses RLS. When using it:
+- Still filter by `app_id` explicitly
+- Document WHY admin is needed (e.g., cross-tenant aggregation, system operations)
+- Never expose admin client results to users without filtering
+
+## WHY
+
+One missing `.eq('app_id', appId)` = data leak across all tenants. This is the #1 security risk in multi-tenant SaaS.

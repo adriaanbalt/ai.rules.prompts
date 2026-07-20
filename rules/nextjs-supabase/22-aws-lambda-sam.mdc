@@ -1,0 +1,58 @@
+---
+description: AWS Lambda/SAM patterns. Idempotent handlers, shared utils, deployment.
+globs: "services/lambda-pipeline/**/*.py,services/lambda-pipeline/**/template.yaml"
+alwaysApply: false
+---
+
+# AWS Lambda / SAM
+
+## Architecture
+
+Three handlers in `services/lambda-pipeline/`:
+
+| Handler | Job | Trigger |
+|---------|-----|---------|
+| DocumentProcessor | Extract, chunk, embed documents | S3 event / schedule |
+| QueryProcessor | Email RAG (receive question, find answer) | SNS/SES |
+| ResponseSender | Send reply via SES | Internal invocation |
+
+Shared code: `services/lambda-pipeline/shared/`
+
+## Core Principles
+
+1. **Idempotent processing.** Same email/document processed twice must produce the same result, not duplicates. Use upserts or check-before-insert.
+2. **Shared code stays in `shared/`.** Don't copy-paste between handlers.
+3. **Tenant boundary preserved.** Even in service-role operations, always filter/insert with `app_id`.
+4. **Explicit retry semantics.** If you catch broadly and return success, Lambda won't retry. Document whether recovery is manual or automatic.
+
+## Handler Structure
+
+```python
+def handler(event, context):
+    # 1. Parse event (S3, SNS, or direct invoke)
+    # 2. Validate required fields
+    # 3. Process (idempotently)
+    # 4. Return structured result
+    # Never: swallow errors silently, log secrets, assume single execution
+```
+
+## Deployment
+
+```bash
+yarn deploy:lambda  # SAM CLI build + deploy
+```
+
+- Changes to `services/lambda-pipeline/` do NOT deploy with `yarn deploy:app`
+- Always test locally with `sam local invoke` before deploying
+- Check CloudWatch logs after deploy — Lambda errors may not surface immediately
+
+## Common Mistakes
+
+- Assuming Lambda has persistent state between invocations (it doesn't)
+- Hardcoding production URLs — use environment variables from SAM template
+- Not handling partial batch failures (if processing multiple items)
+- Forgetting that Lambda has a 15-min max timeout
+
+## WHY
+
+Lambda pipeline is a separate deployment surface. Breaking it doesn't show up in Next.js tests or Vercel deploys — only in CloudWatch or when emails stop being processed.

@@ -67,7 +67,13 @@ ai.rules.prompts/
 │       ├── 16-design-system-tokens
 │       ├── 17-https-oauth
 │       ├── 18-environment-variables
-│       └── 19-logging-monitoring
+│       ├── 19-logging-monitoring
+│       ├── 20-multi-tenancy
+│       ├── 21-stripe-connect
+│       ├── 22-aws-lambda-sam
+│       ├── 23-email-pipeline
+│       ├── 24-rag-ai-pipeline
+│       └── 25-provider-abstraction
 ├── hooks/                          # Behavioral nudges (post-save reminders)
 │   ├── hooks.json                  # Hook definitions
 │   └── README.md                   # How hooks work

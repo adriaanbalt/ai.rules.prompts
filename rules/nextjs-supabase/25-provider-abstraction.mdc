@@ -1,0 +1,55 @@
+---
+description: Provider abstraction patterns. Swappable email, storage, and AI providers.
+globs: "lib/**/*.ts,services/**/*.py"
+alwaysApply: false
+---
+
+# Provider Abstraction
+
+## Principle
+
+External services are swappable. Business logic depends on interfaces, not implementations.
+
+```
+Business logic → Provider interface → Concrete provider (Gmail/Mailgun/SES)
+                                    → Concrete provider (S3/Supabase Storage)
+                                    → Concrete provider (OpenAI/Cohere)
+```
+
+## Current Providers
+
+| Domain | Providers | Switch mechanism |
+|--------|-----------|-----------------|
+| Email (outbound) | Gmail API, Mailgun, AWS SES | `EMAIL_PROVIDER_TYPE` env var |
+| Email (inbound) | Mailgun webhooks, AWS SNS/SES | Webhook route selection |
+| Storage | AWS S3, Supabase Storage | Direct usage (S3 primary) |
+| Embeddings | OpenAI `text-embedding-3-small` | Hardcoded (swap = re-embed) |
+| Reranking | Cohere | Optional, feature-flagged |
+| OCR | AWS Textract | Direct usage |
+
+## Rules
+
+1. **Don't add provider-specific branches in business logic.** If you find yourself writing `if (provider === 'gmail')` in a service layer, the abstraction is leaking.
+2. **New providers implement existing interfaces.** Don't expand the interface for one provider's quirks — adapt in the implementation.
+3. **Test against the interface, not the provider.** Unit tests should mock at the interface boundary.
+4. **Env-var switching must be zero-code-change.** Changing `EMAIL_PROVIDER_TYPE` should work without a redeploy of business logic.
+5. **Document provider-specific limitations.** If one provider has different rate limits or features, note it in the implementation, not the interface.
+
+## Adding a New Provider
+
+1. Implement the existing interface (don't modify it)
+2. Register in the provider factory/switch
+3. Add env vars to `.env.example`
+4. Test the new provider in isolation
+5. Test the switch (old → new) works without data loss
+
+## Common Mistakes
+
+- Leaking provider response shapes into the business layer
+- Hardcoding provider-specific URLs outside the implementation
+- Forgetting to update `.env.example` when adding provider config
+- Testing only one provider and assuming others work the same
+
+## WHY
+
+Provider lock-in is expensive. Today's best provider is tomorrow's legacy. The abstraction layer means switching costs hours, not weeks.

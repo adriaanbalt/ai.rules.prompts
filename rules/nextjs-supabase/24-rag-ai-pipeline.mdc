@@ -1,0 +1,55 @@
+---
+description: RAG and AI patterns. Embeddings, hybrid search, three query surfaces.
+globs: "lib/query/**/*.ts,services/query-api/**/*.py,services/lambda-pipeline/**/query*/**/*.py,app/api/query/**/*.ts"
+alwaysApply: false
+---
+
+# RAG / AI Pipeline
+
+## Three Query Surfaces
+
+| Surface | Location | Trigger |
+|---------|----------|---------|
+| Web UI | `app/api/query` + `lib/query/engine.ts` | User types question in dashboard |
+| Email RAG | `services/lambda-pipeline/QueryProcessor` | Inbound email question |
+| FastAPI | `services/query-api/app/` | Direct API (shared with web) |
+
+**Know which surface you're changing.** They share logic but deploy separately.
+
+## Search Strategy: Hybrid
+
+```
+Query → [pgvector similarity] + [PostgreSQL FTS] → merge → [Cohere rerank] → top-K
+```
+
+- **pgvector:** `text-embedding-3-small` (1536 dims). Embeddings stored in DB.
+- **Full-text search:** PostgreSQL `tsvector` + `tsquery`. Catches exact terms vectors miss.
+- **Reranking:** Cohere (optional). Improves precision on merged results.
+
+Don't change one leg of the hybrid without understanding impact on the other.
+
+## Embedding Patterns
+
+- Chunk documents before embedding (not whole documents)
+- Store chunk → embedding mapping with metadata (source, page, app_id)
+- Tenant-scoped: embeddings always have `app_id`. Never search across tenants.
+- Idempotent: re-embedding the same chunk produces the same row (upsert by content hash)
+
+## Prompt Engineering
+
+- System prompts live in code (not DB) — version-controlled, reviewable
+- Include source citations in answers (reference the chunks used)
+- Limit context window: top-K chunks only, not entire document corpus
+- Temperature 0 for factual Q&A; higher only if creativity is the goal
+
+## Common Mistakes
+
+- Searching without tenant filter (cross-tenant data leak via embeddings)
+- Embedding entire documents instead of chunks (poor retrieval quality)
+- Changing embedding model without re-embedding existing data
+- Assuming web and email RAG share the same deployment (they don't)
+- Not including source references in answers (users can't verify)
+
+## WHY
+
+RAG spans three services and two languages. A change in one surface can silently degrade another. Always identify which query path you're modifying and test it in isolation.

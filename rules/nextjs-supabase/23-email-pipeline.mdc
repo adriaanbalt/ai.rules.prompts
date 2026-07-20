@@ -1,0 +1,55 @@
+---
+description: Email pipeline patterns. Inbound processing, provider abstraction, webhook handling.
+globs: "app/api/webhooks/mailgun/**/*.ts,app/api/webhooks/sns/**/*.ts,services/lambda-pipeline/**/*.py,lib/email/**/*.ts"
+alwaysApply: false
+---
+
+# Email Pipeline
+
+## Flow
+
+```
+Inbound email → Webhook (Mailgun/SNS) → S3 (raw) → Lambda (process) → DB + embeddings
+                                                                     → RAG answer → SES reply
+```
+
+## Provider Abstraction
+
+Email is provider-agnostic. Current providers: Gmail API, Mailgun, AWS SES.
+
+Switching is controlled by `EMAIL_PROVIDER_TYPE` env var. When modifying email logic:
+- Change the provider interface, not individual provider implementations
+- Test with at least two providers if changing the contract
+- New providers implement the same interface — don't add provider-specific branches in business logic
+
+## Inbound Webhooks
+
+- Skip CSRF (`apiHandler(handler, { skipCsrf: true })`)
+- Verify webhook signatures (Mailgun signing key, SNS certificate validation)
+- Store raw email in S3 immediately, then process async — don't lose data if processing fails
+- Parse with `mailparser` — don't write custom MIME parsing
+- Extract: sender, recipients, subject, text body, HTML body, attachments
+
+## Outbound Email
+
+- Use SES for transactional email (via Node SDK or Python boto3)
+- Template rendering happens before send — never send raw template syntax
+- Include unsubscribe headers where legally required
+- Rate limit outbound to avoid SES throttling
+
+## Tenant Isolation
+
+Emails belong to a workspace (`app_id`). Every email record must be tenant-scoped:
+- Inbound: resolve workspace from recipient address mapping
+- Outbound: never send from one workspace's context to another's recipients
+
+## Common Mistakes
+
+- Processing emails synchronously in the webhook handler (timeout risk)
+- Not handling duplicate webhooks (providers retry on non-200)
+- Assuming email body is always text (handle HTML-only emails)
+- Losing attachments by not persisting to S3 before processing
+
+## WHY
+
+Email is the core product loop. If inbound processing breaks, the entire product stops working for end users — and they won't know until they don't get a reply.

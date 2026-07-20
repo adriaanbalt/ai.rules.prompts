@@ -1,0 +1,54 @@
+---
+description: Stripe Connect and payment patterns. Vendor payments, feature gates, webhook verification.
+globs: "lib/payments/**/*.ts,app/api/**/stripe*/**/*.ts,app/api/**/payment*/**/*.ts,app/api/webhooks/stripe/**/*.ts"
+alwaysApply: false
+---
+
+# Stripe Connect & Payments
+
+## Architecture
+
+```
+Stripe Checkout/Portal  →  SaaS billing (subscriptions, tiers)
+Stripe Connect          →  Vendor payments (onboarding, payouts, 1099)
+Feature gates           →  Tier-based access control
+```
+
+These are separate concerns. Don't conflate billing logic with Connect logic.
+
+## Webhook Handlers
+
+```ts
+// Always verify signature before processing
+const event = stripe.webhooks.constructEvent(body, sig, secret)
+// Always handle idempotently — Stripe retries
+// Always return 200 quickly — process async if heavy
+```
+
+- Skip CSRF for webhook routes (`apiHandler(handler, { skipCsrf: true })`)
+- Log the event type + ID for debugging; never log full payment details
+- Handle events idempotently — Stripe will retry on failure
+
+## Connect Onboarding
+
+- Onboarding tokens are one-time-use. Don't cache them.
+- Account status transitions: `restricted` → `pending` → `enabled`. Don't assume linear.
+- Store Connect account ID (`acct_*`) on the vendor record, not in env vars.
+
+## Payment Workflows
+
+Payments in this system involve authorization/approval flows:
+- Payment requests → votes/approvals → execution
+- Respect the state machine. Don't skip states.
+- Feature gates (`requireInvoicesFeature(appId)`) go AFTER membership, BEFORE business logic.
+
+## Platform Fees
+
+When calculating platform fees:
+- Use Stripe's `application_fee_amount`, not manual math
+- Fee logic lives in `lib/payments/` — don't inline in route handlers
+- Test fee calculations with edge cases (zero amounts, refunds, partial)
+
+## WHY
+
+Stripe Connect state machines are complex. Skipping a verification step or processing a webhook twice can result in double payments or lost vendor funds.

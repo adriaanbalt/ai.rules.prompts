@@ -84,16 +84,18 @@ ai.rules.prompts/
 │       └── 25-provider-abstraction # Swappable service providers
 │
 ├── skills/                         # ← Copy into .cursor/skills/
+│   ├── sdlc-workflow/              # Full 8-phase AI-native SDLC
 │   ├── qa-session/                 # Full QA testing workflow
-│   ├── rule-authoring/             # How to write effective rules
 │   ├── feature-scaffold/           # Phased feature implementation
-│   └── deploy-checklist/           # Multi-service deployment
+│   ├── deploy-checklist/           # Multi-service deployment
+│   └── rule-authoring/             # How to write effective rules
 │
 ├── hooks/                          # ← Copy hooks.json into .cursor/
 │   ├── hooks.json                  # Post-save quality nudges
 │   └── README.md                   # Hook philosophy & customization
 │
 ├── docs/                           # Team adoption & governance
+│   ├── AI-NATIVE-SDLC.md          # 8-phase methodology explained
 │   ├── ROLLOUT-PLAYBOOK.md         # 4–6 week adoption plan
 │   ├── PLATFORM-RUNBOOK.md         # Maintaining rules long-term
 │   ├── SUCCESS-METRICS.md          # Measuring impact
@@ -102,6 +104,28 @@ ai.rules.prompts/
 ├── .cursorignore.template          # AI trust boundary template
 └── setup-cursor-rules.sh           # One-command install script
 ```
+
+---
+
+## AI-Native SDLC
+
+This repo covers the **full software development lifecycle** — not just code generation:
+
+```
+Signal → Investigate → Plan → Ticket → Align → Execute → Review → Own
+  1          2           3       4        5        6         7       8
+```
+
+| Phase | What this repo provides |
+|-------|------------------------|
+| 1–2 | `skills/sdlc-workflow` guides investigation & root-cause |
+| 3–4 | `skills/sdlc-workflow` structures planning & acceptance criteria |
+| 5 | Human step (AI drafted the brief) |
+| 6 | `rules/` enforce conventions; `skills/feature-scaffold` structures execution |
+| 7 | `skills/qa-session` for QA; review checklist in SDLC skill |
+| 8 | `skills/deploy-checklist` for shipping; SDLC skill for monitoring |
+
+Most teams only use Phase 6 (code generation). Phases 2–4 and 7–8 are where the real transformation happens. See [docs/AI-NATIVE-SDLC.md](docs/AI-NATIVE-SDLC.md) for the full methodology.
 
 ---
 
@@ -166,6 +190,7 @@ cp -r skills/* your-project/.cursor/skills/
 
 | Skill | What it does | Example invocation |
 |-------|-------------|-------------------|
+| **sdlc-workflow** | Full 8-phase lifecycle: signal → investigate → plan → execute → own | "Walk me through fixing this bug end-to-end" |
 | **qa-session** | Scope → execute tests → report → update tickets | "Run a QA session on this PR" |
 | **feature-scaffold** | Phased build with checkpoints at each layer | "Scaffold the new billing feature" |
 | **deploy-checklist** | Multi-service deploy with rollback plan | "Deploy this to production" |
@@ -238,6 +263,7 @@ rules/go/
 
 See `docs/` for the full operational framework:
 
+- **[AI-NATIVE-SDLC.md](docs/AI-NATIVE-SDLC.md)** — The 8-phase methodology: why most teams plateau at code generation
 - **[ROLLOUT-PLAYBOOK.md](docs/ROLLOUT-PLAYBOOK.md)** — 4–6 week phased adoption plan (lighthouse → enable → mature)
 - **[PLATFORM-RUNBOOK.md](docs/PLATFORM-RUNBOOK.md)** — Adding, modifying, and removing rules over time
 - **[SUCCESS-METRICS.md](docs/SUCCESS-METRICS.md)** — Measuring impact (north star: time to first merged PR)

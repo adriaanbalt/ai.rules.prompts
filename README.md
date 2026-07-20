@@ -16,7 +16,6 @@ A production-tested framework for AI-assisted development. Rules, skills, hooks,
 | **Skills** | Multi-step workflow playbooks | On demand ("Run a QA session") |
 | **Hooks** | Post-event behavioral nudges | After file saves |
 | **Docs** | Rollout playbook, metrics, governance | Reference for team adoption |
-| **Prompt Library** | Reusable prompt templates | User references them explicitly |
 
 ---
 
@@ -99,15 +98,6 @@ ai.rules.prompts/
 │   ├── PLATFORM-RUNBOOK.md         # Maintaining rules long-term
 │   ├── SUCCESS-METRICS.md          # Measuring impact
 │   └── GOVERNANCE.md               # Security & trust boundaries
-│
-├── prompt-library/                 # Reusable prompt templates
-│   ├── qa-testing.mdc              # QA test generation prompts
-│   ├── development.mdc             # Debugging & coding prompts
-│   ├── refactoring.mdc             # Code improvement prompts
-│   ├── communication.mdc           # Explanation & documentation
-│   ├── problem-analysis.mdc        # Root cause analysis
-│   ├── strategic-analysis.mdc      # Business/strategy prompts
-│   └── document-parsing.mdc        # Text processing prompts
 │
 ├── .cursorignore.template          # AI trust boundary template
 └── setup-cursor-rules.sh           # One-command install script
@@ -196,7 +186,6 @@ This repo is built for QA workflows:
 | `rules/06-qa-report` | Standardized report format the AI generates consistently |
 | `rules/07-qa-regression` | Regression checklist covering all feature areas |
 | `skills/qa-session` | Full workflow: scope → test → report → ticket updates |
-| `prompt-library/qa-testing.mdc` | Ready-made prompts for test scenario generation |
 | `rules/08-onboarding-scaffold` | Guided first contribution with validation checkpoints |
 
 Start with: copy the universal rules + the `qa-session` skill into your project.

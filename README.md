@@ -1,104 +1,135 @@
-# Next.js/React/Supabase Cursor Rules
+# AI Rules & Prompts
 
-By **Adriaan Balt** ([www.adriaanbalt.com](https://www.adriaanbalt.com)) — battle-tested cursor rules extracted from production Next.js/React/Supabase applications.
+[![GitHub](https://img.shields.io/github/stars/adriaanbalt/ai.rules.prompts?style=social)](https://github.com/adriaanbalt/ai.rules.prompts)
 
-## What's Inside
+By **Adriaan Balt** ([www.adriaanbalt.com](https://www.adriaanbalt.com)) — battle-tested Cursor rules extracted from production Next.js/React/Supabase applications.
 
-Development standards, architecture patterns, security, infrastructure, UI/UX, and testing rules designed to minimize context window usage while maximizing code quality.
+## Why This Exists
 
-## Rule Categories
+Cursor rules shape how AI writes code in your project. Most rule sets are bloated — they waste context window tokens on generic programming knowledge the AI already has. This collection is deliberately lean: **18 rules in ~900 lines** that specify only project-specific constraints, conventions, and architectural decisions.
 
-### Always Applied
-
-One consolidated rule that's always active:
-
-1. **engineering-discipline.mdc** — Core engineering discipline
-   - Read before writing, match existing patterns
-   - Plan before executing, verify after completing
-   - No TODOs or placeholders, complete changes only
-   - Evidence-based decisions, explicit assumptions
-
-### Context-Specific Rules
-
-These activate when working with matching file patterns:
-
-#### API & Backend
-
-2. **api-routes.mdc** — Next.js API route standards (`app/api/**/*.ts`)
-3. **database-queries.mdc** — Supabase query standards (`lib/database/**/*.ts`)
-4. **security.mdc** — Auth, validation, secrets, data protection
-5. **supabase-migrations.mdc** — Migration workflow and validation
-6. **error-handling.mdc** — Error functions, user messages, logging
-7. **logging-monitoring.mdc** — Structured logging and performance monitoring
-
-#### Frontend
-
-8. **design-system-tokens.mdc** — Semantic tokens over hardcoded colors (`*.tsx, *.css, tailwind.config*`)
-9. **hooks.mdc** — Custom React hooks standards (`lib/hooks/**/*.ts`)
-10. **typescript-types.mdc** — Type organization and conventions
-11. **react-performance-animations.mdc** — Performance optimization and animation standards
-
-#### Infrastructure & Configuration
-
-12. **https-configuration.mdc** — HTTPS proxy setup, OAuth flow, port reference
-13. **environment-variables.mdc** — Naming, validation, organization
-
-#### Development Practices
-
-14. **surgical-fixes.mdc** — Diagnose first, minimal targeted changes
-15. **testing.mdc** — Test structure, mocking, worker tests
-
-#### Documentation
-
-16. **markdown-creation.mdc** — Markdown file headers with date/time handling (`*.md`)
-
-#### QA
-
-17. **qa-report.mdc** — Auto-format QA notes into structured reports
-18. **qa-regression-checklist.mdc** — Regression workflow with MCP integration (agent-requestable)
-
-### Prompt Library
-
-The `prompt-library/` directory contains reusable prompts organized by category. Not automatically applied — only loaded when explicitly referenced.
-
-```
-@prompt-library/category prompt-name Your specific request here
-```
-
-**Categories:** communication, development, qa-testing, strategic-analysis, document-parsing, refactoring, problem-analysis
-
-See `prompt-library/README.mdc` for complete documentation.
-
-## Usage
-
-### In Cursor
-
-1. Clone this repository to your workspace
-2. Link or copy rules to your project's `.cursor/rules/` directory
-3. Reference specific rules in your project documentation
-
-### Rule File Structure
-
-```markdown
----
-description: Brief description
-globs: "**/*.ts,**/*.tsx"
-alwaysApply: true/false
----
-
-# Rule Content
-```
-
-## Design Principles
+### Design Principles
 
 - **Rules are constraints, not tutorials.** Only specify deviations from standard practice.
 - **Always-applied rules must be tiny.** Every token loads on every interaction.
 - **No duplication.** Each pattern exists in exactly one place.
 - **Context-specific by default.** Rules load only when relevant files are being edited.
 
+## Quick Start
+
+```bash
+# Clone into your workspace
+git clone git@github.com:adriaanbalt/ai.rules.prompts.git
+
+# Copy rules into your project
+cp ai.rules.prompts/*.mdc your-project/.cursor/rules/
+```
+
+Or symlink for automatic updates:
+```bash
+ln -s /path/to/ai.rules.prompts/*.mdc your-project/.cursor/rules/
+```
+
+## Rule Categories
+
+### Always Applied
+
+One consolidated rule active on every interaction (~300 tokens):
+
+| Rule | Purpose |
+|------|---------|
+| **engineering-discipline.mdc** | Read before writing, match patterns, plan before executing, no placeholders, self-review |
+
+### Context-Specific (activate on matching file patterns)
+
+#### API & Backend
+
+| Rule | Glob | Purpose |
+|------|------|---------|
+| **api-routes.mdc** | `app/api/**/*.ts` | Route structure, auth, validation, responses |
+| **database-queries.mdc** | `lib/database/**/*.ts` | Client selection, query patterns, error handling |
+| **security.mdc** | `app/api/**/*.ts, lib/auth/**/*.ts` | Auth, input validation, secrets, data protection |
+| **supabase-migrations.mdc** | `supabase/migrations/**/*.sql` | Migration workflow, timestamp validation |
+| **error-handling.mdc** | `**/*.{ts,tsx}` | Error functions, user messages, retry logic |
+| **logging-monitoring.mdc** | `app/api/**/*.ts, lib/**/*.ts` | Structured logging, performance monitoring |
+
+#### Frontend
+
+| Rule | Glob | Purpose |
+|------|------|---------|
+| **design-system-tokens.mdc** | `**/*.tsx, **/*.css, tailwind.config*` | Semantic tokens, no hardcoded colors |
+| **hooks.mdc** | `lib/hooks/**/*.ts` | Hook structure, authenticatedFetch, return types |
+| **typescript-types.mdc** | `lib/types/**/*.ts, **/*.{ts,tsx}` | Type organization, conventions |
+| **react-performance-animations.mdc** | `**/*.tsx, **/*.css` | Perf rules, animation decision framework |
+
+#### Infrastructure
+
+| Rule | Glob | Purpose |
+|------|------|---------|
+| **https-configuration.mdc** | `.env*, config.toml, docker-compose*` | HTTPS proxy, OAuth flow, port reference |
+| **environment-variables.mdc** | `**/*.{ts,tsx,js,json}` | Naming, validation, file loading |
+
+#### Practices
+
+| Rule | Glob | Purpose |
+|------|------|---------|
+| **surgical-fixes.mdc** | `**/*.{ts,tsx,js,jsx}` | Diagnose first, minimal changes |
+| **testing.mdc** | `**/*.test.{ts,tsx}, **/*.spec.{ts,tsx}` | Structure, mocking, worker tests |
+| **markdown-creation.mdc** | `**/*.md` | File headers, date/time format |
+| **qa-report.mdc** | — | Auto-format QA notes into reports |
+| **qa-regression-checklist.mdc** | — | Regression workflow (agent-requestable) |
+
+### Prompt Library
+
+Reusable prompts in `prompt-library/` — loaded only when explicitly referenced:
+
+```
+@prompt-library/development Your request here
+```
+
+**Categories:** communication, development, qa-testing, strategic-analysis, document-parsing, refactoring, problem-analysis
+
+## Rule File Format
+
+```markdown
+---
+description: Brief description of what this rule enforces
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Rule content here
+```
+
+| Field | Purpose |
+|-------|---------|
+| `description` | Shown in Cursor's rule picker |
+| `globs` | File patterns that trigger this rule |
+| `alwaysApply` | If `true`, loads on every interaction (use sparingly) |
+
+## Stack
+
+These rules are optimized for:
+- **Next.js 15+** (App Router)
+- **React 19+**
+- **Supabase** (Auth, Database, RLS)
+- **TypeScript 5+**
+- **Tailwind CSS** (with design system tokens)
+- **Framer Motion** (animations)
+
+Adapt the patterns for other stacks by keeping the structure and replacing the specifics.
+
+## Contributing
+
+When adding rules:
+1. Keep them under 100 lines — if it's longer, you're writing a tutorial
+2. Include only project-specific constraints (not things the AI already knows)
+3. Use context-specific globs — avoid `alwaysApply` unless absolutely necessary
+4. Check for overlap with existing rules before adding
+
 ## License
 
-These rules are provided as-is. Adapt and modify as needed.
+MIT — use, adapt, and share freely.
 
 ---
 

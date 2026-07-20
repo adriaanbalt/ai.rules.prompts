@@ -1,0 +1,29 @@
+{
+  "$schema": "https://cursor.sh/schemas/hooks.json",
+  "hooks": [
+    {
+      "name": "quality-reminder",
+      "description": "Reminds agent to validate after significant code changes",
+      "event": "on_file_save",
+      "match": ["**/*.ts", "**/*.tsx", "**/*.py", "**/*.js", "**/*.jsx"],
+      "action": "prompt",
+      "message": "Before moving on: Does this change compile? Did you check types, imports, and call sites? Run lint/tests if available."
+    },
+    {
+      "name": "qa-checkpoint",
+      "description": "Prompts QA considerations after test file changes",
+      "event": "on_file_save",
+      "match": ["**/*.test.*", "**/*.spec.*", "**/tests/**"],
+      "action": "prompt",
+      "message": "QA check: Does this test cover the happy path, error cases, and edge cases? Are mocks realistic? Would a regression in the tested code be caught?"
+    },
+    {
+      "name": "migration-safety",
+      "description": "Safety check before committing migration files",
+      "event": "on_file_save",
+      "match": ["**/migrations/**/*.sql", "**/migrations/**/*.py"],
+      "action": "prompt",
+      "message": "Migration safety: Is this idempotent (IF NOT EXISTS)? Are there duplicate timestamps? Does it include rollback considerations? Have you tested locally?"
+    }
+  ]
+}

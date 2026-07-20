@@ -1,136 +1,191 @@
 # AI Rules & Prompts
 
-[![GitHub](https://img.shields.io/github/stars/adriaanbalt/ai.rules.prompts?style=social)](https://github.com/adriaanbalt/ai.rules.prompts)
+[![GitHub stars](https://img.shields.io/github/stars/adriaanbalt/ai.rules.prompts?style=social)](https://github.com/adriaanbalt/ai.rules.prompts)
 
-By **Adriaan Balt** ([www.adriaanbalt.com](https://www.adriaanbalt.com)) — battle-tested Cursor rules extracted from production Next.js/React/Supabase applications.
+A lean, production-tested framework for AI-assisted development. Rules that make Cursor (and any AI coding tool) behave like a senior engineer who knows your codebase.
+
+**Stack-agnostic.** The methodology works for Next.js, Django, Rails, Go, Rust — anything. Stack-specific rules are included as examples you adapt.
+
+---
 
 ## Why This Exists
 
-Cursor rules shape how AI writes code in your project. Most rule sets are bloated — they waste context window tokens on generic programming knowledge the AI already has. This collection is deliberately lean: **18 rules in ~900 lines** that specify only project-specific constraints, conventions, and architectural decisions.
+AI coding assistants are powerful but undirected. Without guardrails, they:
+- Invent patterns instead of following yours
+- Generate verbose, tutorial-style code instead of matching conventions
+- Skip validation, producing code that doesn't compile
+- Ignore your team's established error handling, testing, and naming
 
-### Design Principles
+This repo provides the **rules, hooks, governance, and rollout playbook** to fix that.
 
-- **Rules are constraints, not tutorials.** Only specify deviations from standard practice.
-- **Always-applied rules must be tiny.** Every token loads on every interaction.
-- **No duplication.** Each pattern exists in exactly one place.
-- **Context-specific by default.** Rules load only when relevant files are being edited.
+---
 
 ## Quick Start
 
 ```bash
-# Clone into your workspace
-git clone git@github.com:adriaanbalt/ai.rules.prompts.git
+# Clone
+git clone https://github.com/adriaanbalt/ai.rules.prompts.git
 
-# Copy rules into your project
-cp ai.rules.prompts/*.mdc your-project/.cursor/rules/
+# Copy universal rules to your project
+cp ai.rules.prompts/rules/0*.mdc your-project/.cursor/rules/
+
+# Copy .cursorignore template
+cp ai.rules.prompts/.cursorignore.template your-project/.cursorignore
+
+# (Optional) Copy hooks
+cp ai.rules.prompts/hooks/hooks.json your-project/.cursor/hooks.json
 ```
 
-Or symlink for automatic updates:
+Or symlink for auto-updates:
 ```bash
-ln -s /path/to/ai.rules.prompts/*.mdc your-project/.cursor/rules/
+ln -s /path/to/ai.rules.prompts/rules/0*.mdc your-project/.cursor/rules/
 ```
 
-## Rule Categories
+---
 
-### Always Applied
-
-One consolidated rule active on every interaction (~300 tokens):
-
-| Rule | Purpose |
-|------|---------|
-| **engineering-discipline.mdc** | Read before writing, match patterns, plan before executing, no placeholders, self-review |
-
-### Context-Specific (activate on matching file patterns)
-
-#### API & Backend
-
-| Rule | Glob | Purpose |
-|------|------|---------|
-| **api-routes.mdc** | `app/api/**/*.ts` | Route structure, auth, validation, responses |
-| **database-queries.mdc** | `lib/database/**/*.ts` | Client selection, query patterns, error handling |
-| **security.mdc** | `app/api/**/*.ts, lib/auth/**/*.ts` | Auth, input validation, secrets, data protection |
-| **supabase-migrations.mdc** | `supabase/migrations/**/*.sql` | Migration workflow, timestamp validation |
-| **error-handling.mdc** | `**/*.{ts,tsx}` | Error functions, user messages, retry logic |
-| **logging-monitoring.mdc** | `app/api/**/*.ts, lib/**/*.ts` | Structured logging, performance monitoring |
-
-#### Frontend
-
-| Rule | Glob | Purpose |
-|------|------|---------|
-| **design-system-tokens.mdc** | `**/*.tsx, **/*.css, tailwind.config*` | Semantic tokens, no hardcoded colors |
-| **hooks.mdc** | `lib/hooks/**/*.ts` | Hook structure, authenticatedFetch, return types |
-| **typescript-types.mdc** | `lib/types/**/*.ts, **/*.{ts,tsx}` | Type organization, conventions |
-| **react-performance-animations.mdc** | `**/*.tsx, **/*.css` | Perf rules, animation decision framework |
-
-#### Infrastructure
-
-| Rule | Glob | Purpose |
-|------|------|---------|
-| **https-configuration.mdc** | `.env*, config.toml, docker-compose*` | HTTPS proxy, OAuth flow, port reference |
-| **environment-variables.mdc** | `**/*.{ts,tsx,js,json}` | Naming, validation, file loading |
-
-#### Practices
-
-| Rule | Glob | Purpose |
-|------|------|---------|
-| **surgical-fixes.mdc** | `**/*.{ts,tsx,js,jsx}` | Diagnose first, minimal changes |
-| **testing.mdc** | `**/*.test.{ts,tsx}, **/*.spec.{ts,tsx}` | Structure, mocking, worker tests |
-| **markdown-creation.mdc** | `**/*.md` | File headers, date/time format |
-| **qa-report.mdc** | — | Auto-format QA notes into reports |
-| **qa-regression-checklist.mdc** | — | Regression workflow (agent-requestable) |
-
-### Prompt Library
-
-Reusable prompts in `prompt-library/` — loaded only when explicitly referenced:
+## Repository Structure
 
 ```
-@prompt-library/development Your request here
+ai.rules.prompts/
+├── rules/                          # ← Copy these into .cursor/rules/
+│   ├── 00-engineering-discipline   # Core reasoning & quality (always applied)
+│   ├── 01-surgical-fixes           # Debugging methodology
+│   ├── 02-testing                  # Test patterns & coverage
+│   ├── 03-typescript-types         # Type safety constraints
+│   ├── 04-react-performance        # React/animation best practices
+│   ├── 05-markdown-creation        # Documentation standards
+│   ├── 06-qa-report                # QA report formatting
+│   ├── 07-qa-regression            # Regression testing checklist
+│   ├── 08-onboarding-scaffold      # Guided first-contribution workflow
+│   └── nextjs-supabase/            # ← Stack example (adapt for your stack)
+│       ├── 10-api-routes
+│       ├── 11-database-queries
+│       ├── 12-error-handling
+│       ├── 13-security
+│       ├── 14-supabase-migrations
+│       ├── 15-hooks-react
+│       ├── 16-design-system-tokens
+│       ├── 17-https-oauth
+│       ├── 18-environment-variables
+│       └── 19-logging-monitoring
+├── hooks/                          # Behavioral nudges (post-save reminders)
+│   ├── hooks.json                  # Hook definitions
+│   └── README.md                   # How hooks work
+├── docs/                           # Governance & operations
+│   ├── ROLLOUT-PLAYBOOK.md         # 4–6 week team adoption plan
+│   ├── PLATFORM-RUNBOOK.md         # Maintaining rules over time
+│   ├── SUCCESS-METRICS.md          # How to measure impact
+│   └── GOVERNANCE.md               # Security & trust boundaries
+├── prompt-library/                 # Reusable prompt templates
+│   ├── qa-testing.mdc
+│   ├── problem-analysis.mdc
+│   ├── refactoring.mdc
+│   └── ...
+├── .cursorignore.template          # AI trust boundary (copy to your project)
+└── README.md
 ```
 
-**Categories:** communication, development, qa-testing, strategic-analysis, document-parsing, refactoring, problem-analysis
+---
 
-## Rule File Format
+## How It Works
+
+### Three Layers of Enforcement
+
+```
+Rules (AI reads these every session)
+  → "Always match existing naming conventions"
+  → "Never leave TODOs or placeholders"
+
+Hooks (Fire on specific events)
+  → "Did you check types after saving this .ts file?"
+  → "Does this test cover error cases?"
+
+CI (Machine-enforced, blocks merge)
+  → Lint, type-check, test suite
+  → Rules DON'T duplicate CI — they complement it
+```
+
+### Rule Format
+
+Every rule is a `.mdc` file with YAML frontmatter:
 
 ```markdown
 ---
-description: Brief description of what this rule enforces
-globs: "**/*.ts,**/*.tsx"
-alwaysApply: false
+description: One-line purpose (shown in Cursor's rule picker)
+globs: "**/*.ts"      # Which files trigger this rule
+alwaysApply: false    # true = active on every prompt (use sparingly)
 ---
 
-# Rule content here
+# Rule Title
+
+Constraints and patterns go here. Keep it under 100 lines.
+Include WHY — the incident or pattern that motivated this rule.
 ```
 
-| Field | Purpose |
-|-------|---------|
-| `description` | Shown in Cursor's rule picker |
-| `globs` | File patterns that trigger this rule |
-| `alwaysApply` | If `true`, loads on every interaction (use sparingly) |
+### Numbering Convention
 
-## Stack
+| Range | Scope | Examples |
+|-------|-------|---------|
+| 00–09 | Universal (any project) | Engineering discipline, testing, QA |
+| 10–19 | Stack-specific | API routes, migrations, auth |
+| 20–29 | Team/role-specific | QA workflows, DevOps patterns |
 
-These rules are optimized for:
-- **Next.js 15+** (App Router)
-- **React 19+**
-- **Supabase** (Auth, Database, RLS)
-- **TypeScript 5+**
-- **Tailwind CSS** (with design system tokens)
-- **Framer Motion** (animations)
+---
 
-Adapt the patterns for other stacks by keeping the structure and replacing the specifics.
+## For QA Engineers
+
+Rules `06-qa-report` and `07-qa-regression` are designed for QA workflows:
+
+- **06-qa-report**: Standardized report format so AI generates consistent, actionable QA reports
+- **07-qa-regression**: Regression checklist ensuring no feature area is missed during testing
+- **prompt-library/qa-testing.mdc**: Ready-made prompts for test scenario generation
+
+The onboarding scaffold (`08`) guides QA engineers through their first contribution with checkpoints.
+
+---
+
+## Adapting for Your Stack
+
+The `rules/nextjs-supabase/` directory is a **reference implementation**. To create rules for your stack:
+
+1. Copy the structure to `rules/your-stack/`
+2. Replace patterns with your framework's conventions
+3. Keep the same constraints-not-tutorials philosophy
+4. Number in the 10–19 range
+
+Example for Django:
+```
+rules/django/
+├── 10-views.mdc           # View patterns, DRF serializers
+├── 11-models.mdc          # Model conventions, migrations
+├── 12-auth.mdc            # Authentication/authorization
+├── 13-testing.mdc         # pytest patterns, fixtures
+└── 14-celery.mdc          # Task queue patterns
+```
+
+---
+
+## Design Principles
+
+1. **Constraints, not tutorials.** Rules tell the AI what NOT to do. It already knows how to code.
+2. **Under 100 lines.** If a rule is longer, it's a tutorial. Split or trim it.
+3. **Include WHY.** "Don't use `any`" is weak. "Don't use `any` — it caused 3 production type errors in June" is strong.
+4. **Match, don't invent.** Rules encode YOUR existing patterns, not ideal patterns from docs.
+5. **Fail open.** Hooks remind; only CI blocks. A broken rule should never prevent work.
+6. **Lean > comprehensive.** 10 sharp rules beat 50 verbose ones. Every token costs context.
+
+---
 
 ## Contributing
 
-When adding rules:
-1. Keep them under 100 lines — if it's longer, you're writing a tutorial
-2. Include only project-specific constraints (not things the AI already knows)
-3. Use context-specific globs — avoid `alwaysApply` unless absolutely necessary
-4. Check for overlap with existing rules before adding
-
-## License
-
-MIT — use, adapt, and share freely.
+1. Fork the repo
+2. Add/modify rules following the numbering convention
+3. Keep rules under 100 lines
+4. Include a WHY annotation for any new constraint
+5. Test the rule in a real Cursor session before submitting
 
 ---
 
-**Made by [Adriaan Balt](https://www.adriaanbalt.com)**
+## License
+
+MIT

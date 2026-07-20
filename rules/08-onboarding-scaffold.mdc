@@ -1,0 +1,69 @@
+---
+description: Guided workflow for first contribution. Phases must be completed in order — stop at each checkpoint for human review.
+alwaysApply: true
+---
+
+# Onboarding Scaffold
+
+When a new contributor (or AI agent) begins work on an unfamiliar codebase, follow these phases in order. **Stop at each checkpoint** — do not proceed until the phase is validated.
+
+## Phase 1: Gather Context
+
+Before writing any code:
+
+1. Identify the closest existing implementation to what you're building (reference file/module).
+2. Read that reference thoroughly — note patterns, naming, imports, structure.
+3. Read the project's test patterns — how are similar features tested?
+4. Identify all affected surfaces (UI, API, DB, types, tests, docs).
+
+**Checkpoint:** State your plan with: reference file, affected surfaces, and approach. Wait for confirmation.
+
+## Phase 2: Create Structure
+
+1. Create file(s) in the correct location, matching the project's naming conventions.
+2. Set up imports and exports following established patterns.
+3. Register the new module (add to index files, route registrations, etc.).
+4. Write type signatures / interfaces for the public API of your change.
+
+**Checkpoint:** File structure exists, compiles, but has no implementation. Verify the skeleton fits the codebase.
+
+## Phase 3: Implement
+
+1. Implement the core logic, following the reference from Phase 1.
+2. Handle error cases using the project's established error patterns.
+3. Add logging/monitoring following existing conventions.
+4. Ensure all types are satisfied — no `any`, no `// @ts-ignore`.
+
+**Checkpoint:** Implementation is complete. Self-review against the reference file for pattern consistency.
+
+## Phase 4: Test
+
+1. Write tests following the project's test structure and naming.
+2. Cover the happy path, error cases, and edge cases.
+3. Mock external dependencies using the project's mocking patterns.
+4. Verify tests pass locally.
+
+**Checkpoint:** Tests pass. Coverage includes critical paths.
+
+## Phase 5: Validate
+
+1. Run the project's lint/format tools — fix all violations.
+2. Run the full test suite — ensure no regressions.
+3. Verify the change works end-to-end (if applicable).
+4. Check for any documentation that needs updating.
+
+**Checkpoint:** All CI-equivalent checks pass locally. Ready for review.
+
+## When to Skip Phases
+
+- **Bug fixes:** Start at Phase 3 (you already know the context). Still validate (Phase 5).
+- **Documentation only:** Skip Phases 3–4.
+- **Refactoring:** Phases 1–2 are discovery, Phase 3 is the move, Phase 5 is critical.
+
+## Why This Exists
+
+New contributors (human or AI) produce higher-quality first PRs when they:
+- Understand existing patterns before writing new code
+- Create structure before implementation
+- Stop for checkpoints instead of producing a monolithic change
+- Validate against the project's actual CI criteria

@@ -1,0 +1,66 @@
+# ============================================================
+# .cursorignore — AI Trust Boundary
+# ============================================================
+# Files listed here are INVISIBLE to AI in Cursor.
+# This is NOT .gitignore — it controls what the AI can read/edit.
+# Copy this file as `.cursorignore` into your project root.
+# ============================================================
+
+# --- Secrets & Credentials ---
+.env
+.env.local
+.env.production
+.env.*.local
+**/credentials.json
+**/serviceAccountKey.json
+**/*.pem
+**/*.key
+
+# --- CI/CD (AI should not modify deployment pipelines) ---
+.github/workflows/
+.gitlab-ci.yml
+Jenkinsfile
+.circleci/
+
+# --- Lock Files (AI should not regenerate these) ---
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Pipfile.lock
+poetry.lock
+Gemfile.lock
+composer.lock
+
+# --- Generated / Build Output ---
+.next/
+dist/
+build/
+out/
+coverage/
+__pycache__/
+*.pyc
+node_modules/
+
+# --- Large Assets (waste context window) ---
+**/*.wasm
+**/*.pb
+**/*.onnx
+**/*.safetensors
+**/*.bin
+public/fonts/
+public/videos/
+
+# --- Database (prevent accidental schema changes via AI) ---
+# Uncomment if you want to protect migrations from AI edits:
+# supabase/migrations/
+# prisma/migrations/
+
+# --- Vendor / Third-Party ---
+vendor/
+third_party/
+
+# --- IDE / OS ---
+.idea/
+.vscode/settings.json
+.DS_Store
+Thumbs.db

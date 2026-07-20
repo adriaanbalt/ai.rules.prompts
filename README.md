@@ -74,6 +74,11 @@ ai.rules.prompts/
 │       ├── 23-email-pipeline
 │       ├── 24-rag-ai-pipeline
 │       └── 25-provider-abstraction
+├── skills/                         # On-demand multi-step workflows
+│   ├── qa-session/                 # Full QA testing workflow
+│   ├── rule-authoring/             # How to write new rules
+│   ├── feature-scaffold/           # Phased feature implementation
+│   └── deploy-checklist/           # Multi-service deployment
 ├── hooks/                          # Behavioral nudges (post-save reminders)
 │   ├── hooks.json                  # Hook definitions
 │   └── README.md                   # How hooks work
@@ -95,12 +100,16 @@ ai.rules.prompts/
 
 ## How It Works
 
-### Three Layers of Enforcement
+### Four Layers of Enforcement
 
 ```
 Rules (AI reads these every session)
   → "Always match existing naming conventions"
   → "Never leave TODOs or placeholders"
+
+Skills (On-demand multi-step workflows)
+  → "Run a full QA session from scope to report"
+  → "Scaffold a feature with phased checkpoints"
 
 Hooks (Fire on specific events)
   → "Did you check types after saving this .ts file?"
@@ -135,6 +144,28 @@ Include WHY — the incident or pattern that motivated this rule.
 | 00–09 | Universal (any project) | Engineering discipline, testing, QA |
 | 10–19 | Stack-specific | API routes, migrations, auth |
 | 20–29 | Team/role-specific | QA workflows, DevOps patterns |
+
+---
+
+## Skills (On-Demand Workflows)
+
+Skills are multi-step playbooks the agent follows when invoked. Copy to `.cursor/skills/` in your project:
+
+```bash
+cp -r ai.rules.prompts/skills/* your-project/.cursor/skills/
+```
+
+| Skill | What it does | Invoke with |
+|-------|-------------|-------------|
+| `qa-session` | Full QA workflow: scope → test → report → tickets | "Run a QA session on this PR" |
+| `rule-authoring` | Write new rules following the methodology | "Create a rule for our API patterns" |
+| `feature-scaffold` | Phased implementation with checkpoints | "Scaffold the new payments feature" |
+| `deploy-checklist` | Multi-service deploy coordination | "Deploy this to production" |
+
+**Rules vs Skills:**
+- Rules fire automatically (always-on or glob-triggered)
+- Skills fire on demand (user invokes explicitly)
+- Rules = constraints. Skills = workflows.
 
 ---
 

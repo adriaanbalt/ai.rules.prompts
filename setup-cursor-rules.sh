@@ -15,7 +15,7 @@
 #   2. Adds .cursor/rules/shared/ to .gitignore (avoids double-tracking)
 #   3. Preserves any project-specific rules already in .cursor/rules/
 
-RULES_REPO="git@github.com:adriaanbalt/nextjs-react-supabase-cursorrules.git"
+RULES_REPO="git@github.com:adriaanbalt/ai.rules.prompts.git"
 TARGET=".cursor/rules/shared"
 
 # Ensure we're in a project root (has package.json, .git, or similar)

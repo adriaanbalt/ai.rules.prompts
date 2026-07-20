@@ -117,7 +117,7 @@ review this markdown to understand the content within it. for each piece of cont
 **Use when:** Creating technical roadmaps from documentation
 
 ```
-referencing the @Recipe Roulette/app/website/docs/SEO_STRATEGY.md i want you to create a technical roadmap using this as reference for file and folder structure: @roadmap-structure-explanation.md within the @Recipe Roulette docs folder.
+referencing the @project/docs/SEO_STRATEGY.md i want you to create a technical roadmap using this as reference for file and folder structure: @roadmap-structure-explanation.md within the @project docs folder.
 ```
 
 ## Git Commit
@@ -130,10 +130,10 @@ can you commit and push this work for me with a very good, concise commit messag
 
 ## Naming Convention
 
-**Use when:** Creating humanizing names
+**Use when:** Creating humanizing product names from keyword combinations
 
 ```
-regarding names specifically, i want the name to be humanizing, like Feedric. Feedric is a play on words that combine parts of those words to create a new word and the new word sort of sounds like an existing name of a human but it is spelt differently. like Feedric souds like "Frederick". and Feedric is a combination of "Feedback rubric". but if you use the endings or beginnings combination of 2 or 3 letters from peoples names it makes feel more relatable and humanizing.
+regarding names specifically, i want the name to be humanizing — a play on words that combines parts of relevant keywords to create a new word that sounds like an existing human name but is spelt differently. use the endings or beginnings (2-3 letters) from the keywords to make it feel relatable and humanizing. example technique: "Feedback" + "rubric" = sounds like a real name.
 ```
 
 ## Persona Pain Points

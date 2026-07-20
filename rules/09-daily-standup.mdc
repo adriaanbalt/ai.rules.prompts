@@ -1,0 +1,59 @@
+---
+description: Generate daily standup/Slack update by pulling today's activity from project management MCP. Triggers on "daily update", "end of day", "standup", or "daily message".
+alwaysApply: true
+---
+
+# Daily Standup Generator
+
+When the user says "daily update", "end of day", "standup", or "daily message":
+
+## Step 1: Pull today's activity from MCP
+
+Query the project management tool (Linear/Jira/GitHub) for:
+- Tickets updated today by this user (status changes, comments added)
+- New tickets created today by this user
+- Tickets assigned to this user that are blocked or waiting on someone else
+
+## Step 2: Ask for anything MCP can't see
+
+Prompt the user for:
+- Social media updates (posts, follower changes) — if applicable
+- Any work done outside of tickets
+- Blockers not captured in ticket status
+
+Keep this brief — don't ask for info you already have from MCP.
+
+## Step 3: Generate the daily message
+
+Output in this exact format:
+
+```
+Daily Update — [Today's Date]
+
+What I worked on:
+• [Bullet points summarizing the day's testing/work]
+• [Inferred from tickets touched + any user additions]
+
+Tickets updated:
+• BAL-XXX: [action taken — e.g., "moved to Done (QA pass)", "added failure comment", "added acceptance criteria"]
+• BAL-XXX: [action taken]
+
+Bugs found:
+• [Title of any new tickets created today, or "none — tested X and Y flows"]
+
+Blockers:
+• [Tickets waiting on someone else, or "none"]
+
+Social:
+• [User's social updates, or "none today"]
+```
+
+## Rules
+
+1. **Pull from MCP first** — Don't ask the user to list tickets they touched. Query for them.
+2. **Summarize actions, not ticket descriptions** — "moved to Done" not the full ticket title.
+3. **Group intelligently** — If 5 tickets passed QA, write "5 tickets passed QA (BAL-481, BAL-482, ...)" not 5 separate lines.
+4. **Keep it scannable** — This goes into Slack. Short bullets, no paragraphs.
+5. **Include the date** — Always use today's date in the header.
+6. **Ask about social only if the user has social responsibilities** — Skip if not relevant.
+7. **Offer to send** — If Slack MCP is available, offer to post directly. Otherwise output for copy-paste.
